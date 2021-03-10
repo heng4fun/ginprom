@@ -1,4 +1,4 @@
-module github.com/Depado/ginprom
+module github.com/heng4fun/ginprom
 
 go 1.16
 
