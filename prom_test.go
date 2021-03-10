@@ -56,6 +56,30 @@ func TestPath(t *testing.T) {
 	}
 }
 
+// Set the application that is required to add default label
+func ExampleApplication() {
+	r := gin.New()
+	p := New(Engine(r), Application("application"))
+	r.Use(p.Instrument())
+}
+
+func TestApplication(t *testing.T) {
+	p := New()
+	assert.Equal(t, p.Application, defaltApp, "Application should be default")
+	unregister(p)
+
+	tests := []string{
+		"app1",
+		"app2",
+		"app3",
+	}
+	for _, test := range tests {
+		p = New(Application(test))
+		assert.Equal(t, p.Application, test, "should match")
+		unregister(p)
+	}
+}
+
 // Set a secret token that is required to access the endpoint
 func ExampleToken() {
 	r := gin.New()
@@ -82,7 +106,7 @@ func TestEngine(t *testing.T) {
 	unregister(p)
 }
 
-func TestRegistry(t *testing.T)  {
+func TestRegistry(t *testing.T) {
 	registry := prometheus.NewRegistry()
 
 	p := New(Registry(registry))
@@ -386,7 +410,7 @@ func TestInstrumentCustomMetricsErrors(t *testing.T) {
 	unregister(p)
 }
 
-func TestMultipleGinWithDifferentRegistry(t *testing.T)  {
+func TestMultipleGinWithDifferentRegistry(t *testing.T) {
 	// with different registries we don't panic because of multiple metric registration attempt
 	r1 := gin.New()
 	p1 := New(Engine(r1), Registry(prometheus.NewRegistry()))

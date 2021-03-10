@@ -1,6 +1,6 @@
 # ginprom
 
-Gin Prometheus metrics exporter inspired by [github.com/zsais/go-gin-prometheus](https://github.com/zsais/go-gin-prometheus)
+Gin Prometheus metrics exporter inspired by [https://github.com/Depado/ginprom](https://github.com/zsais/go-gin-prometheus)
 
 [![Sourcegraph](https://sourcegraph.com/github.com/Depado/ginprom/-/badge.svg)](https://sourcegraph.com/github.com/Depado/ginprom?badge)
 ![Go Version](https://img.shields.io/badge/go-latest-brightgreen)

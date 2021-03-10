@@ -19,6 +19,7 @@ import (
 var defaultPath = "/metrics"
 var defaultNs = "gin"
 var defaultSys = "gonic"
+var defaltApp = "default"
 
 // ErrInvalidToken is returned when the provided token is invalid or missing.
 var ErrInvalidToken = errors.New("invalid or missing token")
@@ -51,6 +52,7 @@ type Prometheus struct {
 	Ignored     pmapb
 	Engine      *gin.Engine
 	BucketsSize []float64
+	Application string
 	Registry    *prometheus.Registry
 }
 
@@ -113,6 +115,13 @@ func (p *Prometheus) AddCustomGauge(name, help string, labels []string) {
 func Path(path string) func(*Prometheus) {
 	return func(p *Prometheus) {
 		p.MetricsPath = path
+	}
+}
+
+// Path is an option allowing to set the metrics path when intializing with New.
+func Application(application string) func(*Prometheus) {
+	return func(p *Prometheus) {
+		p.Application = application
 	}
 }
 
@@ -191,6 +200,7 @@ func New(options ...func(*Prometheus)) *Prometheus {
 		MetricsPath: defaultPath,
 		Namespace:   defaultNs,
 		Subsystem:   defaultSys,
+		Application: defaltApp,
 	}
 	p.customGauges.values = make(map[string]prometheus.GaugeVec)
 	p.Ignored.values = make(map[string]bool)
@@ -223,7 +233,7 @@ func (p *Prometheus) register() {
 			Name:      "requests_total",
 			Help:      "How many HTTP requests processed, partitioned by status code and HTTP method.",
 		},
-		[]string{"code", "method", "handler", "host", "path"},
+		[]string{"application", "code", "method", "path"},
 	)
 	registerer.MustRegister(p.reqCnt)
 
@@ -233,7 +243,7 @@ func (p *Prometheus) register() {
 		Buckets:   p.BucketsSize,
 		Name:      "request_duration",
 		Help:      "The HTTP request latency bucket",
-	}, []string{"method", "path"})
+	}, []string{"application", "method", "path"})
 	registerer.MustRegister(p.reqDur)
 
 	p.reqSz = prometheus.NewSummary(
@@ -284,8 +294,8 @@ func (p *Prometheus) Instrument() gin.HandlerFunc {
 		elapsed := float64(time.Since(start)) / float64(time.Second)
 		resSz := float64(c.Writer.Size())
 
-		p.reqCnt.WithLabelValues(status, c.Request.Method, c.HandlerName(), c.Request.Host, path).Inc()
-		p.reqDur.WithLabelValues(c.Request.Method, path).Observe(elapsed)
+		p.reqCnt.WithLabelValues(p.Application, status, c.Request.Method, path).Inc()
+		p.reqDur.WithLabelValues(p.Application, c.Request.Method, path).Observe(elapsed)
 		p.reqSz.Observe(float64(reqSz))
 		p.resSz.Observe(resSz)
 	}
