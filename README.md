@@ -13,7 +13,7 @@ Gin Prometheus metrics exporter inspired by [https://github.com/Depado/ginprom](
 ## Install
 
 Simply run:
-`go get -u github.com/Depado/ginprom`
+`go get -u github.com/heng4fun/ginprom`
 
 ## Differences with go-gin-prometheus
 
