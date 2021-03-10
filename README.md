@@ -68,6 +68,18 @@ Save `p` and use the following functions:
 - DecrementGaugeValue
 - SetGaugeValue
 
+### Application
+Override the default application (`default`), it will be default label
+
+```go
+r := gin.New()
+p := ginprom.New(
+	ginprom.Engine(r),
+	ginprom.Application("APPLICATION_NAME"),
+)
+r.Use(p.Instrument())
+```
+
 ### Path
 
 Override the default path (`/metrics`) on which the metrics can be accessed:
